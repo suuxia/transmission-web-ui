@@ -8,27 +8,30 @@ function App() {
     <>
       <div className="fixed flex flex-col w-40 h-dvh p-2 gap-2 border-r-1 border-slate-200">
         <div
-          className='select-none text-center py-1 rounded-md hover:bg-gray-200'
+          className='select-none text-center py-2 rounded-md hover:bg-gray-200 data-[state=active]:bg-gray-200'
+          data-state={view === 'all' ? 'active' : 'inactive'}
           onClick={() => setView('all')}
         >全部</div>
         <div
-          className='select-none text-center py-1 rounded-md hover:bg-gray-200'
+          className='select-none text-center py-2 rounded-md hover:bg-gray-200 data-[state=active]:bg-gray-200'
+          data-state={view === 'downloading' ? 'active' : 'inactive'}
           onClick={() => setView('downloading')}
         >下载中</div>
         <div
-          className='select-none text-center py-1 rounded-md hover:bg-gray-200'
+          className='select-none text-center py-2 rounded-md hover:bg-gray-200 data-[state=active]:bg-gray-200'
+          data-state={view === 'done' ? 'active' : 'inactive'}
           onClick={() => setView('done')}
         >已完成</div>
         <Separator />
         <div
-          className='select-none text-center py-1 rounded-md hover:bg-gray-200'
+          className='select-none text-center py-2 rounded-md hover:bg-gray-200 data-[state=active]:bg-gray-200'
+          data-state={view === 'setting' ? 'active' : 'inactive'}
           onClick={() => setView('setting')}
         >
           设置
         </div>
       </div>
       <div className="pl-40">
-        {view}
         <Torrents />
       </div>
     </>

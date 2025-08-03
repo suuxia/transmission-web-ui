@@ -35,9 +35,10 @@ function createRPC() {
 
 const client = createRPC();
 
+type Fields = keyof Torrent;
 
 async function getTorrent(ids?: number | number[]) {
-  const fields = [
+  const listFields: Fields[] = [
     'id',
     'name',
     'totalSize',
@@ -46,7 +47,23 @@ async function getTorrent(ids?: number | number[]) {
     'doneDate',
     'activityDate',
   ];
-  const resp = await client<{ torrents: Torrent[]}>('torrent-get', { ids, fields });
+
+  const detailFields: Fields[] = [
+    'id',
+    'name',
+    'totalSize',
+    'percentDone',
+    'addedDate',
+    'doneDate',
+    'activityDate',
+    'files',
+  ];
+
+  const params = {
+    ids: typeof ids === 'number' ? [ids] : ids,
+    fields: ids ? detailFields : listFields,
+  };
+  const resp = await client<{ torrents: Torrent[]}>('torrent-get', params);
   return resp.arguments;
 }
 

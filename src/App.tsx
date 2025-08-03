@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
-import Torrents from "@/views/torrents.tsx";
+import Torrents from "@/views/Torrents/Torrents.tsx";
 
 function App() {
   const [view, setView] = useState('all');

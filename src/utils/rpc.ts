@@ -20,8 +20,7 @@ function createRPC() {
     });
   }
 
-  return async function<T>(method: string, args: any, tag?: string): Promise<Response<T>> {
-
+  return async function <T>(method: string, args: any, tag?: string): Promise<Response<T>> {
     let response = await send(method, args, tag);
 
     if (response.status === 409) {
@@ -30,17 +29,24 @@ function createRPC() {
     }
 
     return response.json();
-  }
-};
+  };
+}
 
 const client = createRPC();
 
-type Fields = keyof Torrent;
+type TorrentFields = keyof Torrent;
 
+/**
+ * 获取种子信息，ids为空时，获取种子列表
+ * @param ids
+ * @returns
+ */
 async function getTorrent(ids?: number | number[]) {
-  const listFields: Fields[] = [
+  const listFields: TorrentFields[] = [
     'id',
     'name',
+    'rateDownload',
+    'rateUpload',
     'totalSize',
     'percentDone',
     'addedDate',
@@ -48,7 +54,7 @@ async function getTorrent(ids?: number | number[]) {
     'activityDate',
   ];
 
-  const detailFields: Fields[] = [
+  const detailFields: TorrentFields[] = [
     'id',
     'name',
     'totalSize',
@@ -63,15 +69,16 @@ async function getTorrent(ids?: number | number[]) {
     ids: typeof ids === 'number' ? [ids] : ids,
     fields: ids ? detailFields : listFields,
   };
-  const resp = await client<{ torrents: Torrent[]}>('torrent-get', params);
+  const resp = await client<{ torrents: Torrent[] }>('torrent-get', params);
   return resp.arguments;
 }
 
-function getSession(){
+/**
+ * 获取session信息
+ * @returns
+ */
+function getSession() {
   return client('session-get', {});
 }
 
-export {
-  getTorrent,
-  getSession,
-}
+export { getTorrent, getSession };

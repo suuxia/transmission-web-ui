@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+
 /**
  * 根据文件大小格式化容量
  * @param size
@@ -14,4 +16,8 @@ export function formatSize(size: number) {
   }
 
   return size;
+}
+
+export function formatDateTime(time: number, fmt = 'YYYY/MM/DD HH:mm:ss') {
+  return dayjs.unix(time).format(fmt);
 }

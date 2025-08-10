@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import { Input } from '@/components/ui/input.tsx';
-import { Button } from '@/components/ui/button.tsx';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -11,6 +10,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet.tsx';
 import { Info, Play, Trash2 } from 'lucide-react';
 import type { Torrent } from '@/types/rpc.ts';
+import AddTorrent from './components/AddTorrent.tsx';
 import TorrentComponent from './components/Torrent.tsx';
 import TorrentDetail from './components/TorrentDetail.tsx';
 import { getTorrent } from '@/utils/rpc.ts';
@@ -34,9 +34,10 @@ function Torrents() {
     getTorrent().then((data) => (data ? setTorrents(data.torrents) : null));
   }, []);
 
-  const menuSelect = (event: any) => {
-    if (event.target) {
-      const id = getTargetDataId(event.target);
+  const menuSelect = (event: MouseEvent<HTMLElement>) => {
+    const target = event.target as HTMLElement | undefined;
+    if (target) {
+      const id = getTargetDataId(target);
       setSelectedTorrent(id ?? '');
     }
   };
@@ -45,13 +46,15 @@ function Torrents() {
     <div>
       <div className="p-4 flex justify-between">
         <Input className="w-60" />
-        <Button>添加种子</Button>
+        <AddTorrent />
       </div>
       <ContextMenu>
-        <ContextMenuTrigger onContextMenu={menuSelect}>
-          {torrents.map((torrent) => (
-            <TorrentComponent key={torrent.id} torrent={torrent} />
-          ))}
+        <ContextMenuTrigger asChild>
+          <div onContextMenu={menuSelect}>
+            {torrents.map((torrent) => (
+              <TorrentComponent key={torrent.id} torrent={torrent} />
+            ))}
+          </div>
         </ContextMenuTrigger>
         <ContextMenuContent>
           <ContextMenuItem>
@@ -69,11 +72,12 @@ function Torrents() {
           </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
+
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetContent className="w-[400px] sm:w-[640px] sm:max-w-[700px]">
           <SheetHeader>
             <SheetTitle>种子详情</SheetTitle>
-            <SheetDescription>种子的详细信息</SheetDescription>
+            <SheetDescription />
           </SheetHeader>
           <TorrentDetail torrentId={selectedTorrent} />
         </SheetContent>

@@ -18,9 +18,15 @@ export interface Torrent {
   percentDone: number;
   addedDate: number;
   doneDate: number;
+  downloadedEver: number;
+  downloadDir: string;
   activityDate: number;
-  files: File[];
-  peers: Peer[];
+  trackers?: Tracker[];
+  trackerList?: string;
+  hashString?: string;
+  status: number;
+  files?: File[];
+  peers?: Peer[];
   peersConnected: number;
 }
 
@@ -33,6 +39,14 @@ export interface File {
   name: string;
   'begin_piece': number;
   'end_piece': number;
+}
+
+interface Tracker {
+  announce: string;
+  id: number;
+  scrape: string;
+  sitename: string;
+  tier: string;
 }
 
 export interface Peer {
@@ -92,7 +106,7 @@ export interface SessionInfoStats {
   sessionActive: number;
 }
 
-export interface Response<T = any> {
+export interface Response<T> {
   arguments?: T;
   tag?: string;
   result: string;

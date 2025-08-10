@@ -2,10 +2,14 @@ import type { Torrent, Response } from '@/types/rpc.ts';
 
 const BASE_URL = '/transmission/rpc';
 
+interface Args {
+  fields?: string[];
+}
+
 function createRPC() {
   let sessionId = '';
 
-  function send(method: string, args: any, tag?: string) {
+  function send(method: string, args: Args, tag?: string) {
     return fetch(BASE_URL, {
       method: 'POST',
       headers: {
@@ -20,7 +24,7 @@ function createRPC() {
     });
   }
 
-  return async function <T>(method: string, args: any, tag?: string): Promise<Response<T>> {
+  return async function <T>(method: string, args: Args, tag?: string): Promise<Response<T>> {
     let response = await send(method, args, tag);
 
     if (response.status === 409) {
@@ -47,10 +51,12 @@ async function getTorrent(ids?: number | number[]) {
     'name',
     'rateDownload',
     'rateUpload',
+    'downloadedEver',
     'totalSize',
     'percentDone',
     'addedDate',
     'doneDate',
+    'status',
     'activityDate',
   ];
 
@@ -58,11 +64,14 @@ async function getTorrent(ids?: number | number[]) {
     'id',
     'name',
     'totalSize',
+    'downloadDir',
     'percentDone',
     'addedDate',
     'doneDate',
     'activityDate',
+    'hashString',
     'files',
+    'peers',
   ];
 
   const params = {

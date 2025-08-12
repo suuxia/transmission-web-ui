@@ -22,10 +22,12 @@ export interface Torrent {
   downloadDir: string;
   activityDate: number;
   trackers?: Tracker[];
+  trackerStats?: TrackerStats[];
   trackerList?: string;
   hashString?: string;
   status: number;
   files?: File[];
+  fileStats?: FileStats[];
   peers?: Peer[];
   peersConnected: number;
 }
@@ -41,12 +43,39 @@ export interface File {
   'end_piece': number;
 }
 
+/**
+ * 文件状态
+ */
+export interface FileStats {
+  bytesCompleted: number;
+  wanted: boolean;
+  priority: number;
+}
+
+/**
+ * Tracker
+ */
 interface Tracker {
   announce: string;
   id: number;
   scrape: string;
   sitename: string;
   tier: string;
+}
+
+/**
+ * TrackerStats
+ */
+interface TrackerStats {
+  id: number;
+  sitename: string;
+  host: string;
+  announce: string;
+  announceState: number;
+  lastAnnounceTime: number;
+  downloadCount: number;
+  leecherCount: number;
+  seederCount: number;
 }
 
 export interface Peer {
@@ -85,6 +114,9 @@ export interface Session {
   'alt-speed-down': number;
   'alt-speed-enabled': boolean;
   'alt-speed-up': number;
+  'config-dir': string;
+  'download-dir': string;
+  'default-trackers': string;
   version: string;
 }
 

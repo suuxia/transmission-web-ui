@@ -1,4 +1,4 @@
-import type { Torrent, Response } from '@/types/rpc.ts';
+import type { Torrent, Session, Response } from '@/types/rpc.ts';
 
 const BASE_URL = '/transmission/rpc';
 
@@ -71,7 +71,9 @@ async function getTorrent(ids?: number | number[]) {
     'activityDate',
     'hashString',
     'files',
+    'fileStats',
     'peers',
+    'trackerStats',
   ];
 
   const params = {
@@ -87,7 +89,7 @@ async function getTorrent(ids?: number | number[]) {
  * @returns
  */
 function getSession() {
-  return client('session-get', {});
+  return client<Session>('session-get', {});
 }
 
 export { getTorrent, getSession };

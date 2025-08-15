@@ -1,4 +1,5 @@
 import { useState, useEffect, type MouseEvent } from 'react';
+import { useLoaderData } from 'react-router';
 import { Input } from '@/components/ui/input.tsx';
 import {
   ContextMenu,
@@ -26,19 +27,41 @@ function getTargetDataId(target: HTMLElement) {
 }
 
 function Torrents() {
+  const loader = useLoaderData();
   const [torrents, setTorrents] = useState<Torrent[]>([]);
   const [openSheet, setOpenSheet] = useState(false);
   const [selectedTorrent, setSelectedTorrent] = useState<string>();
 
   useEffect(() => {
-    getTorrent().then((data) => (data ? setTorrents(data.torrents) : null));
-  }, []);
+    const init = async () => {
+      const data = await getTorrent();
+      if (!data) return;
+
+      if (loader && loader === 'downloading') {
+        setTorrents(data.torrents.filter((item) => item.status === 4));
+      } else if (loader && loader === 'done') {
+        setTorrents(data.torrents.filter((item) => item.status === 0));
+      } else {
+        setTorrents(data.torrents);
+      }
+    };
+
+    init();
+
+    const timer = setInterval(() => {
+      init();
+    }, 3000);
+
+    return () => {
+      clearInterval(timer);
+    };
+  }, [loader]);
 
   const menuSelect = (event: MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement | undefined;
     if (target) {
       const id = getTargetDataId(target);
-      setSelectedTorrent(id ?? '');
+      setSelectedTorrent(id);
     }
   };
 
@@ -61,7 +84,11 @@ function Torrents() {
             <Play />
             开始
           </ContextMenuItem>
-          <ContextMenuItem onSelect={() => setOpenSheet(true)}>
+          <ContextMenuItem
+            onSelect={() => {
+              if (selectedTorrent) setOpenSheet(true);
+            }}
+          >
             <Info />
             种子详情
           </ContextMenuItem>

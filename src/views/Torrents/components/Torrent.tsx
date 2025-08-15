@@ -1,5 +1,5 @@
 import { Progress } from '@/components/ui/progress.tsx';
-import { formatSize } from '@/utils/format.ts';
+import { formatSize, formatPercent } from '@/utils/format.ts';
 import type { Torrent } from '@/types/rpc.ts';
 
 interface TorrentProps {
@@ -19,9 +19,12 @@ function TorrentComponent(props: TorrentProps) {
       </div>
       <div className="flex justify-between text-sm text-gray-400">
         <div>
-          {formatSize(torrent.totalSize)}/{formatSize(torrent.totalSize)}
+          <span>
+            {formatSize(torrent.downloadedEver)}/{formatSize(torrent.totalSize)}
+          </span>
+          <span>({formatPercent(torrent.percentDone)})</span>
         </div>
-        <div>{formatSize(torrent.rateDownload)}</div>
+        <div>{torrent.status > 0 ? formatSize(torrent.rateDownload) + '/s' : ''}</div>
       </div>
     </div>
   );

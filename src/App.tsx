@@ -1,45 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { NavLink, Outlet } from 'react-router';
 import { Separator } from '@/components/ui/separator';
-import Torrents from '@/views/Torrents/Torrents.tsx';
-import Settings from '@/views/Settings/Settings.tsx';
+import type { SessionStats } from '@/types/rpc.ts';
+import { getSessionStats } from '@/utils/rpc.ts';
 
 function App() {
-  const [view, setView] = useState('all');
-  const itemClassName = 'select-none text-center py-2 rounded-md hover:bg-gray-200 data-[state=active]:bg-gray-200';
+  const [sessionStats, setseSsionStats] = useState<SessionStats>();
+
+  const itemClassName = ' py-2 rounded-md hover:bg-gray-200';
+
+  const setClassName = ({ isActive }: { isActive: boolean }) => {
+    return `${itemClassName}${isActive ? ' bg-gray-200' : ''}`;
+  };
+
+  useEffect(() => {
+    const init = async () => {
+      const data = await getSessionStats();
+      setseSsionStats(data.arguments);
+    };
+
+    init();
+  }, []);
+
   return (
     <>
-      <div className="fixed flex flex-col w-48 h-dvh p-2 gap-2 border-r-1 border-slate-200">
-        <div
-          className={itemClassName}
-          data-state={view === 'all' ? 'active' : 'inactive'}
-          onClick={() => setView('all')}
-        >
-          全部
-        </div>
-        <div
-          className={itemClassName}
-          data-state={view === 'downloading' ? 'active' : 'inactive'}
-          onClick={() => setView('downloading')}
-        >
-          下载中
-        </div>
-        <div
-          className={itemClassName}
-          data-state={view === 'done' ? 'active' : 'inactive'}
-          onClick={() => setView('done')}
-        >
+      <nav className="fixed flex flex-col w-48 h-dvh p-2 gap-2 border-r-1 select-none text-center border-slate-200">
+        <NavLink className={setClassName} to="/">
+          全部 ({sessionStats?.torrentCount})
+        </NavLink>
+        <NavLink className={setClassName} to="/downloading">
+          下载中 ({sessionStats?.activeTorrentCount})
+        </NavLink>
+        <NavLink className={setClassName} to="/done">
           已完成
-        </div>
+        </NavLink>
         <Separator />
-        <div
-          className={itemClassName}
-          data-state={view === 'setting' ? 'active' : 'inactive'}
-          onClick={() => setView('setting')}
-        >
+        <NavLink className={setClassName} to="/settings">
           设置
-        </div>
+        </NavLink>
+        <NavLink className={setClassName} to="/about">
+          关于
+        </NavLink>
+      </nav>
+      <div className="pl-48">
+        <Outlet />
       </div>
-      <div className="pl-48">{view === 'setting' ? <Settings /> : <Torrents />}</div>
     </>
   );
 }

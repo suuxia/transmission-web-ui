@@ -1,4 +1,4 @@
-import type { Torrent, Session, Response } from '@/types/rpc.ts';
+import type { Torrent, Session, SessionStats, Response } from '@/types/rpc.ts';
 
 const BASE_URL = '/transmission/rpc';
 
@@ -9,7 +9,7 @@ interface Args {
 function createRPC() {
   let sessionId = '';
 
-  function send(method: string, args: Args, tag?: string) {
+  function send(method: string, args?: Args, tag?: string) {
     return fetch(BASE_URL, {
       method: 'POST',
       headers: {
@@ -24,7 +24,7 @@ function createRPC() {
     });
   }
 
-  return async function <T>(method: string, args: Args, tag?: string): Promise<Response<T>> {
+  return async function <T>(method: string, args?: Args, tag?: string): Promise<Response<T>> {
     let response = await send(method, args, tag);
 
     if (response.status === 409) {
@@ -89,7 +89,15 @@ async function getTorrent(ids?: number | number[]) {
  * @returns
  */
 function getSession() {
-  return client<Session>('session-get', {});
+  return client<Session>('session-get');
 }
 
-export { getTorrent, getSession };
+/**
+ * 获取session状态
+ * @returns 
+ */
+function getSessionStats() {
+  return client<SessionStats>('session-stats');
+}
+
+export { getTorrent, getSession, getSessionStats };

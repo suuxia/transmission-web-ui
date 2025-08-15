@@ -130,7 +130,7 @@ export interface SessionStats {
   'current-stats': SessionInfoStats;
 }
 
-export interface SessionInfoStats {
+interface SessionInfoStats {
   uploadedBytes: number;
   downloadedBytes: number;
   filesAdded: number;

@@ -1,36 +1,31 @@
-import { useState, useEffect, type MouseEvent } from 'react';
+import { useState, useEffect } from 'react';
 import { useLoaderData } from 'react-router';
 import { Input } from '@/components/ui/input.tsx';
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-  ContextMenuSeparator,
-} from '@/components/ui/context-menu.tsx';
+import { Button } from '@/components/ui/button.tsx';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet.tsx';
-import { Info, Play, Trash2 } from 'lucide-react';
+import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import type { Torrent } from '@/types/rpc.ts';
 import AddTorrent from './components/AddTorrent.tsx';
 import TorrentComponent from './components/Torrent.tsx';
 import TorrentDetail from './components/TorrentDetail.tsx';
 import { getTorrent } from '@/utils/rpc.ts';
 
-function getTargetDataId(target: HTMLElement) {
-  for (let i = 0; i < 10; i++) {
-    if (target.dataset.id !== undefined) {
-      return target.dataset.id;
-    }
-    if (!target.parentElement) return;
-    target = target.parentElement;
-  }
-}
-
 function Torrents() {
   const loader = useLoaderData();
   const [torrents, setTorrents] = useState<Torrent[]>([]);
   const [openSheet, setOpenSheet] = useState(false);
-  const [selectedTorrent, setSelectedTorrent] = useState<string>();
+  const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
+  const [selectedId, setSelectedId] = useState<number>();
+
+  const onDetail = (id: number) => {
+    setSelectedId(id);
+    setOpenSheet(true);
+  };
+
+  const onDelete = (id: number) => {
+    setSelectedId(id);
+    setOpenDeleteDialog(true);
+  };
 
   useEffect(() => {
     const init = async () => {
@@ -50,20 +45,12 @@ function Torrents() {
 
     const timer = setInterval(() => {
       init();
-    }, 3000);
+    }, 2000);
 
     return () => {
       clearInterval(timer);
     };
   }, [loader]);
-
-  const menuSelect = (event: MouseEvent<HTMLElement>) => {
-    const target = event.target as HTMLElement | undefined;
-    if (target) {
-      const id = getTargetDataId(target);
-      setSelectedTorrent(id);
-    }
-  };
 
   return (
     <div>
@@ -71,34 +58,11 @@ function Torrents() {
         <Input className="w-60" />
         <AddTorrent />
       </div>
-      <ContextMenu>
-        <ContextMenuTrigger asChild>
-          <div onContextMenu={menuSelect}>
-            {torrents.map((torrent) => (
-              <TorrentComponent key={torrent.id} torrent={torrent} />
-            ))}
-          </div>
-        </ContextMenuTrigger>
-        <ContextMenuContent>
-          <ContextMenuItem>
-            <Play />
-            开始
-          </ContextMenuItem>
-          <ContextMenuItem
-            onSelect={() => {
-              if (selectedTorrent) setOpenSheet(true);
-            }}
-          >
-            <Info />
-            种子详情
-          </ContextMenuItem>
-          <ContextMenuSeparator />
-          <ContextMenuItem className="text-red-600">
-            <Trash2 />
-            删除
-          </ContextMenuItem>
-        </ContextMenuContent>
-      </ContextMenu>
+      <div>
+        {torrents.map((torrent) => (
+          <TorrentComponent key={torrent.id} torrent={torrent} onDetail={onDetail} onDelete={onDelete} />
+        ))}
+      </div>
 
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
         <SheetContent className="w-[400px] sm:w-[640px] sm:max-w-[700px]">
@@ -106,9 +70,23 @@ function Torrents() {
             <SheetTitle>种子详情</SheetTitle>
             <SheetDescription />
           </SheetHeader>
-          <TorrentDetail torrentId={selectedTorrent} />
+          <TorrentDetail torrentId={selectedId} />
         </SheetContent>
       </Sheet>
+
+      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+        <DialogContent aria-describedby={undefined}>
+          <DialogHeader>
+            <DialogTitle>删除种子确认</DialogTitle>
+          </DialogHeader>
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">取消</Button>
+            </DialogClose>
+            <Button>确认</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

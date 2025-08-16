@@ -12,24 +12,37 @@ export interface Torrent {
   isFinished: boolean;
   isPrivate: boolean;
   isStalled: boolean;
+  /** 上传速率 */
   rateUpload: number;
+  /** 下载速率 */
   rateDownload:  number;
+  /** 总大小 */
   totalSize: number;
+  /** 完成比率 */
   percentDone: number;
-  addedDate: number;
-  doneDate: number;
+  /** 已下载大小 */
   downloadedEver: number;
+  /** 保存路径 */
   downloadDir: string;
+  /** 添加时间 */
+  addedDate: number;
+  /** 完成时间 */
+  doneDate: number;
+  /** 活动日期 */
   activityDate: number;
   trackers?: Tracker[];
   trackerStats?: TrackerStats[];
   trackerList?: string;
+  /** hash信息 */
   hashString?: string;
+  /** 种子状态 */
   status: number;
   files?: File[];
   fileStats?: FileStats[];
   peers?: Peer[];
+  peersFrom?: PeerFrom;
   peersConnected: number;
+  uploadRatio: number;
 }
 
 /**

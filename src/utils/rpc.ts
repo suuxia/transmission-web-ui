@@ -3,6 +3,7 @@ import type { Torrent, Session, SessionStats, Response } from '@/types/rpc.ts';
 const BASE_URL = '/transmission/rpc';
 
 interface Args {
+  ids?: number[];
   fields?: string[];
 }
 
@@ -37,6 +38,33 @@ function createRPC() {
 }
 
 const client = createRPC();
+
+async function startTorrent(ids: number | number[]) {
+  const params = {
+    ids: typeof ids === 'number' ? [ids] : ids,
+  };
+
+  const response = await client('torrent-start', params);
+  return response.arguments;
+}
+
+/**
+ * 停止种子
+ * @param ids
+ */
+async function stopTorrent(ids: number | number[]) {
+  const params = {
+    ids: typeof ids === 'number' ? [ids] : ids,
+  };
+
+  const response = await client('torrent-stop', params);
+  return response.arguments;
+}
+
+async function setTorrent() {
+  const response = await client('torrent-set');
+  return response.arguments;
+}
 
 type TorrentFields = keyof Torrent;
 
@@ -73,6 +101,8 @@ async function getTorrent(ids?: number | number[]) {
     'files',
     'fileStats',
     'peers',
+    'peersFrom',
+    'uploadRatio',
     'trackerStats',
   ];
 
@@ -94,10 +124,10 @@ function getSession() {
 
 /**
  * 获取session状态
- * @returns 
+ * @returns
  */
 function getSessionStats() {
   return client<SessionStats>('session-stats');
 }
 
-export { getTorrent, getSession, getSessionStats };
+export { startTorrent, stopTorrent, setTorrent, getTorrent, getSession, getSessionStats };

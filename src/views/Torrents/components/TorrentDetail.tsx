@@ -8,7 +8,7 @@ import { getTorrent } from '@/utils/rpc.ts';
 import { formatDateTime, formatSize } from '@/utils/format';
 
 interface DetailProps {
-  torrentId?: string;
+  torrentId?: number;
 }
 
 /**
@@ -21,7 +21,7 @@ function TorrentDetail(props: DetailProps) {
   const [torrent, setTorrent] = useState<Torrent>();
 
   useEffect(() => {
-    getTorrent(Number(torrentId)).then((data) => {
+    getTorrent(torrentId).then((data) => {
       if (!data) return;
       const { torrents } = data;
       if (torrents?.length > 0) setTorrent(data?.torrents[0]);
@@ -80,12 +80,39 @@ function TorrentDetail(props: DetailProps) {
           </div>
         </TabsContent>
         <TabsContent value="peer">
-          {torrent?.peers?.map((peer) => (
-            <div key={peer.address}>
-              {peer.address}
-              {peer.clientName}
+          <div>
+            <div className='mb-2'>
+              <div className='font-bold'>用户来源</div>
+              <div className='flex justify-between text-sm py-2'>
+                <span>Cache: {torrent?.peersFrom?.fromCache}</span>
+                <span>Dht: {torrent?.peersFrom?.fromDht}</span>
+                <span>Incoming: {torrent?.peersFrom?.fromIncoming}</span>
+                <span>Lpd: {torrent?.peersFrom?.fromLpd}</span>
+                <span>Ltep: {torrent?.peersFrom?.fromLtep}</span>
+                <span>Pex: {torrent?.peersFrom?.fromPex}</span>
+                <span>Tracker: {torrent?.peersFrom?.fromTracker}</span>
+              </div>
             </div>
-          ))}
+            <Table className="table-fixed">
+              <TableCaption />
+              <TableHeader className="sticky top-0 bg-gray-50">
+                <TableRow>
+                  <TableHead>IP地址</TableHead>
+                  <TableHead>客户端</TableHead>
+                  <TableHead>标记</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {torrent?.peers?.map((peer) => (
+                  <TableRow key={peer.address}>
+                    <TableCell>{peer.address}</TableCell>
+                    <TableCell>{peer.clientName}</TableCell>
+                    <TableCell>{peer.flagStr}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </TabsContent>
         <TabsContent value="tracker" className="min-h-0 overflow-auto">
           <div className="flex flex-col gap-2">
@@ -122,6 +149,10 @@ function TorrentDetail(props: DetailProps) {
             <div>
               文件大小：
               {formatSize(torrent?.totalSize ?? 0)}
+            </div>
+            <div>
+              上传比率：
+              {torrent?.uploadRatio}
             </div>
             <div>
               添加时间：

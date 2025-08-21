@@ -1,5 +1,5 @@
 /**
- * Transmission's RPC specification 
+ * Transmission's RPC specification
  * https://github.com/transmission/transmission/blob/main/docs/rpc-spec.md
  */
 
@@ -15,7 +15,7 @@ export interface Torrent {
   /** 上传速率 */
   rateUpload: number;
   /** 下载速率 */
-  rateDownload:  number;
+  rateDownload: number;
   /** 总大小 */
   totalSize: number;
   /** 完成比率 */
@@ -30,6 +30,12 @@ export interface Torrent {
   doneDate: number;
   /** 活动日期 */
   activityDate: number;
+  /** 已上传大小 */
+  uploadedEver: number;
+  uploadLimit: number;
+  uploadLimited: boolean;
+  creator: string;
+  eta: number;
   trackers?: Tracker[];
   trackerStats?: TrackerStats[];
   trackerList?: string;
@@ -52,8 +58,8 @@ export interface File {
   bytesCompleted: number;
   length: number;
   name: string;
-  'begin_piece': number;
-  'end_piece': number;
+  begin_piece: number;
+  end_piece: number;
 }
 
 /**
@@ -128,8 +134,17 @@ export interface Session {
   'alt-speed-enabled': boolean;
   'alt-speed-up': number;
   'config-dir': string;
+  'cache-size-mb': number;
+  /** 下载目录 */
   'download-dir': string;
+  'incomplete-dir-enabled': boolean;
+  /** 未完成目录 */
+  'incomplete-dir': string;
   'default-trackers': string;
+  'speed-limit-down-enabled': boolean;
+  'speed-limit-down': number;
+  'speed-limit-up-enabled': boolean;
+  'speed-limit-up': number;
   version: string;
 }
 

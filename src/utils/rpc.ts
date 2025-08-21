@@ -66,6 +66,16 @@ async function setTorrent() {
   return response.arguments;
 }
 
+async function addTorrent(path: string, content: string) {
+  const params = {
+    'download-dir': path,
+    metainfo: content,
+  };
+
+  const response = await client('torrent-add', params);
+  return response.arguments;
+}
+
 type TorrentFields = keyof Torrent;
 
 /**
@@ -94,14 +104,15 @@ async function getTorrent(ids?: number | number[]) {
     'totalSize',
     'downloadDir',
     'percentDone',
+    'uploadedEver',
     'addedDate',
     'doneDate',
     'activityDate',
+    'creator',
     'hashString',
     'files',
     'fileStats',
     'peers',
-    'peersFrom',
     'uploadRatio',
     'trackerStats',
   ];
@@ -130,4 +141,4 @@ function getSessionStats() {
   return client<SessionStats>('session-stats');
 }
 
-export { startTorrent, stopTorrent, setTorrent, getTorrent, getSession, getSessionStats };
+export { startTorrent, stopTorrent, addTorrent, setTorrent, getTorrent, getSession, getSessionStats };

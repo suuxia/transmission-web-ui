@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from "@/components/ui/separator"
+import { Separator } from '@/components/ui/separator';
 import type { Torrent } from '@/types/rpc.ts';
 import { getTorrent } from '@/utils/rpc.ts';
 import { formatDateTime, formatSize } from '@/utils/format';
@@ -81,18 +81,6 @@ function TorrentDetail(props: DetailProps) {
         </TabsContent>
         <TabsContent value="peer">
           <div>
-            <div className='mb-2'>
-              <div className='font-bold'>用户来源</div>
-              <div className='flex justify-between text-sm py-2'>
-                <span>Cache: {torrent?.peersFrom?.fromCache}</span>
-                <span>Dht: {torrent?.peersFrom?.fromDht}</span>
-                <span>Incoming: {torrent?.peersFrom?.fromIncoming}</span>
-                <span>Lpd: {torrent?.peersFrom?.fromLpd}</span>
-                <span>Ltep: {torrent?.peersFrom?.fromLtep}</span>
-                <span>Pex: {torrent?.peersFrom?.fromPex}</span>
-                <span>Tracker: {torrent?.peersFrom?.fromTracker}</span>
-              </div>
-            </div>
             <Table className="table-fixed">
               <TableCaption />
               <TableHeader className="sticky top-0 bg-gray-50">
@@ -120,13 +108,13 @@ function TorrentDetail(props: DetailProps) {
               return (
                 <div key={tracker.id} className="border-1 p-2 flex flex-col gap-1">
                   <div>
-                    <div className='flex gap-2'>
+                    <div className="flex gap-2">
                       <span className="font-bold">{tracker.sitename}</span>
-                      <Badge variant='secondary'>{tracker.announceState === 0 ? '非活动' : '活动'}</Badge>
+                      <Badge variant="secondary">{tracker.announceState === 0 ? '非活动' : '活动'}</Badge>
                     </div>
                     <div className="text-sm text-gray-400">{tracker.host}</div>
                   </div>
-                  <div className='text-sm flex items-center h-5 space-x-2 '>
+                  <div className="text-sm flex items-center h-5 space-x-2 ">
                     <div>更新时间：{formatDateTime(tracker.lastAnnounceTime)}</div>
                     <Separator orientation="vertical" />
                     <div>下载数：{tracker.downloadCount}</div>
@@ -151,6 +139,10 @@ function TorrentDetail(props: DetailProps) {
               {formatSize(torrent?.totalSize ?? 0)}
             </div>
             <div>
+              上传大小：
+              {formatSize(torrent?.uploadedEver ?? 0)}
+            </div>
+            <div>
               上传比率：
               {torrent?.uploadRatio}
             </div>
@@ -161,6 +153,10 @@ function TorrentDetail(props: DetailProps) {
             <div>
               完成时间：
               {torrent?.doneDate ? formatDateTime(torrent?.doneDate) : ''}
+            </div>
+            <div>
+              创建者：
+              {torrent?.creator}
             </div>
           </div>
         </TabsContent>

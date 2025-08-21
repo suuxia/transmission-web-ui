@@ -5,7 +5,7 @@ import type { SessionStats } from '@/types/rpc.ts';
 import { getSessionStats } from '@/utils/rpc.ts';
 
 function App() {
-  const [sessionStats, setseSsionStats] = useState<SessionStats>();
+  const [sessionStats, setSessionStats] = useState<SessionStats>();
 
   const itemClassName = ' py-2 rounded-md hover:bg-gray-200';
 
@@ -16,11 +16,16 @@ function App() {
   useEffect(() => {
     const init = async () => {
       const data = await getSessionStats();
-      setseSsionStats(data.arguments);
+      setSessionStats(data.arguments);
     };
 
     init();
   }, []);
+
+  const doneNumber = () => {
+    const { torrentCount = 0, activeTorrentCount = 0 } = sessionStats || {};
+    return torrentCount - activeTorrentCount;
+  };
 
   return (
     <>
@@ -32,7 +37,7 @@ function App() {
           下载中 ({sessionStats?.activeTorrentCount})
         </NavLink>
         <NavLink className={setClassName} to="/done">
-          已完成
+          已完成 ({doneNumber()})
         </NavLink>
         <Separator />
         <NavLink className={setClassName} to="/settings">
@@ -42,7 +47,7 @@ function App() {
           关于
         </NavLink>
       </nav>
-      <div className="pl-48">
+      <div className="pl-48 h-screen">
         <Outlet />
       </div>
     </>

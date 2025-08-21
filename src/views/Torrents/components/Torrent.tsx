@@ -13,12 +13,15 @@ import type { Torrent } from '@/types/rpc.ts';
 interface TorrentProps {
   torrent: Torrent;
   onDetail?: (id: number) => void;
+  onUpdate?: (id: number, type: string) => void;
   onDelete?: (id: number) => void;
 }
 
 function TorrentComponent(props: TorrentProps) {
-  const { torrent, onDetail, onDelete } = props;
-  const handleTorrentStatusUpdate = () => {};
+  const { torrent, onDetail, onUpdate, onDelete } = props;
+  const handleTorrentStatusUpdate = () => {
+    onUpdate?.(torrent.id, torrent.status == 0 ? 'start' : 'stop');
+  };
 
   return (
     <ContextMenu>

@@ -4,12 +4,17 @@ import { Input } from '@/components/ui/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet.tsx';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import VirtualizedList from '@/components/VirtualizedList/VirtualizedList.tsx';
 import type { Torrent } from '@/types/rpc.ts';
 import AddTorrent from './components/AddTorrent.tsx';
 import TorrentComponent from './components/Torrent.tsx';
 import TorrentDetail from './components/TorrentDetail.tsx';
-import { getTorrent } from '@/utils/rpc.ts';
+import { getTorrent, startTorrent, stopTorrent } from '@/utils/rpc.ts';
 
+/**
+ * 种子列表
+ * @constructor
+ */
 function Torrents() {
   const loader = useLoaderData();
   const [torrents, setTorrents] = useState<Torrent[]>([]);
@@ -22,10 +27,20 @@ function Torrents() {
     setOpenSheet(true);
   };
 
+  const onUpdate = (id: number, type: string) => {
+    if (type === 'start') {
+      startTorrent(id);
+    } else if (type === 'stop') {
+      stopTorrent(id);
+    }
+  };
+
   const onDelete = (id: number) => {
     setSelectedId(id);
     setOpenDeleteDialog(true);
   };
+
+  const loadData = async () => {};
 
   useEffect(() => {
     const init = async () => {
@@ -45,7 +60,7 @@ function Torrents() {
 
     const timer = setInterval(() => {
       init();
-    }, 2000);
+    }, 5000);
 
     return () => {
       clearInterval(timer);
@@ -53,19 +68,19 @@ function Torrents() {
   }, [loader]);
 
   return (
-    <div>
+    <div className="h-full flex flex-col">
       <div className="p-4 flex justify-between">
         <Input className="w-60" />
         <AddTorrent />
       </div>
-      <div>
-        {torrents.map((torrent) => (
-          <TorrentComponent key={torrent.id} torrent={torrent} onDetail={onDetail} onDelete={onDelete} />
-        ))}
-      </div>
+      <VirtualizedList listData={torrents} itemHeight={100}>
+        {(torrent, index) => (
+          <TorrentComponent key={index} torrent={torrent} onDetail={onDetail} onUpdate={onUpdate} onDelete={onDelete} />
+        )}
+      </VirtualizedList>
 
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-        <SheetContent className="w-[400px] sm:w-[640px] sm:max-w-[700px]">
+        <SheetContent className="w-[400px] sm:w-[640px] sm:max-w-[700px] gap-0">
           <SheetHeader>
             <SheetTitle>种子详情</SheetTitle>
             <SheetDescription />

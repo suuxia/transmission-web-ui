@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData } from 'react-router';
-import { Input } from '@/components/ui/input.tsx';
+import { Input } from '@/components/input.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet.tsx';
 import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import VirtualizedList from '@/components/VirtualizedList/VirtualizedList.tsx';
+import { Search } from 'lucide-react';
 import type { Torrent } from '@/types/rpc.ts';
 import AddTorrent from './components/AddTorrent.tsx';
 import TorrentComponent from './components/Torrent.tsx';
@@ -13,7 +14,6 @@ import { getTorrent, startTorrent, stopTorrent } from '@/utils/rpc.ts';
 
 /**
  * 种子列表
- * @constructor
  */
 function Torrents() {
   const loader = useLoaderData();
@@ -40,27 +40,27 @@ function Torrents() {
     setOpenDeleteDialog(true);
   };
 
-  const loadData = async () => {};
+  const loadData = async (loadType: string) => {
+    const data = await getTorrent();
+    if (!data) return;
+    switch (loadType) {
+      case 'downloading': 
+        setTorrents(data.torrents.filter((item) => item.status === 4));
+        break;
+      
+      case 'done': 
+        setTorrents(data.torrents.filter((item) => item.status === 0));
+        break;
+
+      default:
+        setTorrents(data.torrents);
+        break;
+    }
+  };
 
   useEffect(() => {
-    const init = async () => {
-      const data = await getTorrent();
-      if (!data) return;
-
-      if (loader && loader === 'downloading') {
-        setTorrents(data.torrents.filter((item) => item.status === 4));
-      } else if (loader && loader === 'done') {
-        setTorrents(data.torrents.filter((item) => item.status === 0));
-      } else {
-        setTorrents(data.torrents);
-      }
-    };
-
-    init();
-
-    const timer = setInterval(() => {
-      init();
-    }, 5000);
+    loadData(loader);
+    const timer = setInterval(() => loadData(loader), 5000);
 
     return () => {
       clearInterval(timer);
@@ -70,12 +70,18 @@ function Torrents() {
   return (
     <div className="h-full flex flex-col">
       <div className="p-4 flex justify-between">
-        <Input className="w-60" />
+        <Input prefix={<Search size={14} />} />
         <AddTorrent />
       </div>
       <VirtualizedList listData={torrents} itemHeight={100}>
         {(torrent, index) => (
-          <TorrentComponent key={index} torrent={torrent} onDetail={onDetail} onUpdate={onUpdate} onDelete={onDelete} />
+          <TorrentComponent
+            key={index}
+            torrent={torrent}
+            onDetail={onDetail}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+          />
         )}
       </VirtualizedList>
 

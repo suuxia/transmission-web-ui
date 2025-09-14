@@ -6,7 +6,7 @@ import {
   ContextMenuSeparator,
 } from '@/components/ui/context-menu.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
-import { Info, Pause, Play, Trash2 } from 'lucide-react';
+import { Info, Pause, Play, Trash2, Download, Upload } from 'lucide-react';
 import { formatSize, formatPercent } from '@/utils/format.ts';
 import type { Torrent } from '@/types/rpc.ts';
 
@@ -40,7 +40,24 @@ function TorrentComponent(props: TorrentProps) {
               </span>
               <span>({formatPercent(torrent.percentDone)})</span>
             </div>
-            <div>{torrent.status > 0 ? formatSize(torrent.rateDownload) + '/s ' : <></>}</div>
+            <div className="flex items-center gap-1">
+              {
+                torrent.rateDownload > 0
+                  ? <>
+                    <span><Download size={16} /></span>
+                    <span>{formatSize(torrent.rateDownload)}/s</span>
+                  </>
+                  : <></>
+              }
+              {
+                torrent.rateDownload > 0
+                  ? <>
+                    <span><Upload size={16} /></span>
+                    <span>{formatSize(torrent.rateUpload)}/s</span>
+                  </>
+                  : <></>
+              }
+            </div>
           </div>
         </div>
       </ContextMenuTrigger>

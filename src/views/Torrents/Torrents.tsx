@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useLoaderData } from 'react-router';
 import { Input } from '@/components/input.tsx';
-import { Button } from '@/components/ui/button.tsx';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet.tsx';
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import VirtualizedList from '@/components/VirtualizedList/VirtualizedList.tsx';
 import { Search } from 'lucide-react';
 import type { Torrent } from '@/types/rpc.ts';
 import AddTorrent from './components/AddTorrent.tsx';
+import DeleteTorrent from './components/DeleteTorrent.tsx';
 import TorrentComponent from './components/Torrent.tsx';
 import TorrentDetail from './components/TorrentDetail.tsx';
 import { getTorrent, startTorrent, stopTorrent } from '@/utils/rpc.ts';
@@ -35,20 +34,20 @@ function Torrents() {
     }
   };
 
-  const onDelete = (id: number) => {
+  const onDeleteConfirm = (id: number) => {
     setSelectedId(id);
     setOpenDeleteDialog(true);
   };
 
-  const loadData = async (loadType: string) => {
+  const loadData = async (loadType: string): Promise<void> => {
     const data = await getTorrent();
     if (!data) return;
     switch (loadType) {
-      case 'downloading': 
+      case 'downloading':
         setTorrents(data.torrents.filter((item) => item.status === 4));
         break;
-      
-      case 'done': 
+
+      case 'done':
         setTorrents(data.torrents.filter((item) => item.status === 0));
         break;
 
@@ -80,7 +79,7 @@ function Torrents() {
             torrent={torrent}
             onDetail={onDetail}
             onUpdate={onUpdate}
-            onDelete={onDelete}
+            onDelete={onDeleteConfirm}
           />
         )}
       </VirtualizedList>
@@ -95,19 +94,7 @@ function Torrents() {
         </SheetContent>
       </Sheet>
 
-      <Dialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
-        <DialogContent aria-describedby={undefined}>
-          <DialogHeader>
-            <DialogTitle>删除种子确认</DialogTitle>
-          </DialogHeader>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">取消</Button>
-            </DialogClose>
-            <Button>确认</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <DeleteTorrent torrentId={selectedId!} open={openDeleteDialog} onOpenChange={setOpenDeleteDialog} />
     </div>
   );
 }

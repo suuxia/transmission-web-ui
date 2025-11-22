@@ -7,18 +7,18 @@ import { getSessionStats } from '@/utils/rpc.ts';
 function App() {
   const [sessionStats, setSessionStats] = useState<SessionStats>();
 
-  const itemClassName = ' py-2 rounded-md hover:bg-gray-200';
+  const itemClassName = 'text-sm px-2 py-1 rounded-md hover:bg-gray-200';
 
   const setClassName = ({ isActive }: { isActive: boolean }) => {
     return `${itemClassName}${isActive ? ' bg-gray-200' : ''}`;
   };
 
-  useEffect(() => {
-    const init = async () => {
-      const data = await getSessionStats();
-      setSessionStats(data.arguments);
-    };
+  const init = async () => {
+    const data = await getSessionStats();
+    setSessionStats(data.arguments);
+  };
 
+  useEffect(() => {
     init();
   }, []);
 
@@ -29,7 +29,7 @@ function App() {
 
   return (
     <>
-      <nav className="fixed flex flex-col w-48 h-dvh p-2 gap-2 border-r-1 select-none text-center border-slate-200">
+      <nav className="fixed flex flex-col w-52 h-dvh p-2 gap-1 border-r-1 select-none bg-gray-50 border-slate-200">
         <NavLink className={setClassName} to="/">
           全部 ({sessionStats?.torrentCount})
         </NavLink>
@@ -47,7 +47,7 @@ function App() {
           关于
         </NavLink>
       </nav>
-      <div className="pl-48 h-screen">
+      <div className="pl-52 h-screen">
         <Outlet />
       </div>
     </>

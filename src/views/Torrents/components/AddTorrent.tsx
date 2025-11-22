@@ -176,7 +176,7 @@ function AddTorrent() {
             onClick={handleSubmit}
             disabled={selectedFiles.length === 0}
           >
-            确认添加 ({selectedFiles.length})
+            确认添加
           </Button>
         </DialogFooter>
       </DialogContent>

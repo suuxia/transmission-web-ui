@@ -1,11 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, Fragment } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import type { Torrent } from '@/types/rpc.ts';
+import { Button } from '@/components/ui/button';
+import { ChevronDown, ChevronRight, File as FileIcon, Folder, FolderOpen } from 'lucide-react';
+import type { Torrent, File, FileStats } from '@/types/rpc.ts';
 import { getTorrent } from '@/utils/rpc.ts';
-import { formatDateTime, formatSize } from '@/utils/format';
+import { formatDateTime, formatPercent, formatSize } from '@/utils/format';
 
 interface DetailProps {
   torrentId?: number;
@@ -51,7 +53,7 @@ function TorrentDetail(props: DetailProps) {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="files" className="min-h-0">
-          <TorrentFiles  torrent={torrent} />
+          <TorrentFiles torrent={torrent} />
         </TabsContent>
         <TabsContent value="peer">
           <div>
@@ -87,41 +89,211 @@ function TorrentDetail(props: DetailProps) {
   );
 }
 
+interface Tree {
+  name: string;
+  type: 'file' | 'dir';
+  bytes?: number;
+  completedBytes?: number;
+  wanted?: boolean;
+  children: Tree[];
+}
+
+type NFile = File & FileStats;
+
+/**
+ * 树形视图表格组件
+ * @param files 文件列表
+ * @param fileStats 文件统计信息
+ */
+function TreeViewTable({ files, fileStats }: { files: File[]; fileStats?: FileStats[] }) {
+  const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
+
+  // 构建目录树结构
+  const buildTree = (files: NFile[]) => {
+    if (!files || files.length === 0) return [];
+
+    const tree: Tree[] = [];
+
+    for (const file of files) {
+      const pathParts = file.name.split('/');
+
+      let current = tree;
+
+      pathParts.forEach((part, partIndex) => {
+        const isFile = partIndex === pathParts.length - 1;
+
+        if (isFile) {
+          // 将文件添加到当前目录
+          current.push({
+            name: part,
+            type: 'file',
+            bytes: file.length,
+            completedBytes: file.bytesCompleted,
+            wanted: file.wanted,
+            children: [],
+          });
+        } else {
+          // 创建或获取子目录
+          const node = current.find((item) => item.name === part);
+          if (!node) {
+            const children: Tree = {
+              name: part,
+              type: 'dir',
+              children: [],
+            };
+            current.push(children);
+            current = children.children;
+          } else {
+            current = node.children;
+          }
+        }
+      });
+    }
+
+    return tree;
+  };
+
+  const directoryTree = useMemo(() => {
+    const n_files = files.map((file, index) => {
+      const stats = fileStats?.[index] ?? {
+        bytesCompleted: 0,
+        wanted: false,
+        priority: 0,
+      };
+      return { ...stats, ...file };
+    });
+    return buildTree(n_files);
+  }, [files, fileStats]);
+
+  const toggleDirectory = (path: string) => {
+    setExpandedDirs((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(path)) {
+        newSet.delete(path);
+      } else {
+        newSet.add(path);
+      }
+      return newSet;
+    });
+  };
+
+  // 递归渲染目录树
+  const renderTree = (nodes: Tree[], level = 0) => {
+    return nodes.map((node) => {
+      const key = node.name;
+      if (node.type === 'dir') {
+        const isExpanded = expandedDirs.has(node.name);
+        return (
+          <Fragment key={key}>
+            <TableRow className="hover:bg-gray-50">
+              <TableCell className="font-medium">
+                <div className="flex items-center gap-2" title={node.name} style={{ paddingLeft: `${level * 20}px` }}>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => toggleDirectory(node.name)}>
+                    {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+                  </Button>
+                  {isExpanded ? (
+                    <FolderOpen className="shrink-0 h-4 w-4 text-blue-500" />
+                  ) : (
+                    <Folder className="shrink-0 h-4 w-4 text-blue-500" />
+                  )}
+                  <span className="overflow-hidden">{node.name}</span>
+                </div>
+              </TableCell>
+              <TableCell></TableCell>
+              <TableCell className="text-center"></TableCell>
+              <TableCell className="text-center"></TableCell>
+            </TableRow>
+            {isExpanded && (
+              <>
+                {/* 渲染子目录 */}
+                {node.children && node.children.length > 0 ? renderTree(node.children, level + 1) : <></>}
+              </>
+            )}
+          </Fragment>
+        );
+      } else if (node.type === 'file') {
+        const progress = node.bytes! > 0 ? node.completedBytes! / node.bytes! : 0;
+
+        // 渲染文件
+        return (
+          <TableRow key={key}>
+            <TableCell className="truncate" title={node.name} style={{ paddingLeft: `${level * 20 + 24}px` }}>
+              <div className="flex items-center gap-2">
+                <FileIcon className="shrink-0 h-4 w-4 text-gray-500" />
+                <span className="overflow-hidden">{node.name}</span>
+              </div>
+            </TableCell>
+            <TableCell>{formatSize(node.bytes ?? 0)}</TableCell>
+            <TableCell className="text-center">{node.wanted ? '是' : '否'}</TableCell>
+            <TableCell className="text-center">{formatPercent(progress)}</TableCell>
+          </TableRow>
+        );
+      }
+    });
+  };
+
+  return (
+    <Table className="table-fixed" key={'tree-table'}>
+      <TableHeader className="sticky top-0 bg-gray-50">
+        <TableRow>
+          <TableHead className="w-2/3">文件/文件夹</TableHead>
+          <TableHead>大小</TableHead>
+          <TableHead className="text-center">下载</TableHead>
+          <TableHead className="text-center">进度</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>{renderTree(directoryTree)}</TableBody>
+    </Table>
+  );
+}
+
 /**
  * 种子文件信息
  * @param props
  */
 function TorrentFiles(props: { torrent: Torrent }) {
   const { torrent } = props;
+  const [isTreeView, setIsTreeView] = useState(false);
+
   return (
-    <div className="h-full select-none">
-      <Table className="table-fixed">
-        <TableCaption />
-        <TableHeader className="sticky top-0 bg-gray-50">
-          <TableRow>
-            <TableHead className="w-2/3">文件名称</TableHead>
-            <TableHead>文件大小</TableHead>
-            <TableHead className="text-center">下载</TableHead>
-            <TableHead className="text-center">进度</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {torrent.files?.map((file, index) => {
-            return (
-              <TableRow key={file.name}>
-                <TableCell className="truncate" title={file.name}>
-                  {file.name}
-                </TableCell>
-                <TableCell>{formatSize(file.length)}</TableCell>
-                <TableCell className="text-center">{torrent?.fileStats?.[index].wanted ? '是' : '否'}</TableCell>
-                <TableCell className="text-center">
-                  {((file.bytesCompleted / file.length) * 100).toLocaleString()}%
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
+    <div className="h-full select-none flex flex-col">
+      <div className="mb-2 flex gap-2">
+        <Button variant={isTreeView ? 'default' : 'outline'} size="sm" onClick={() => setIsTreeView(!isTreeView)}>
+          {isTreeView ? '列表视图' : '树形视图'}
+        </Button>
+      </div>
+
+      {isTreeView ? (
+        <TreeViewTable files={torrent.files || []} fileStats={torrent.fileStats} />
+      ) : (
+        <Table className="table-fixed" key={'list-table'}>
+          <TableCaption />
+          <TableHeader className="sticky top-0 bg-gray-50">
+            <TableRow>
+              <TableHead className="w-2/3">文件名称</TableHead>
+              <TableHead>文件大小</TableHead>
+              <TableHead className="text-center">下载</TableHead>
+              <TableHead className="text-center">进度</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {torrent.files?.map((file, index) => {
+              return (
+                <TableRow key={file.name}>
+                  <TableCell className="truncate" title={file.name}>
+                    {file.name}
+                  </TableCell>
+                  <TableCell>{formatSize(file.length)}</TableCell>
+                  <TableCell className="text-center">{torrent?.fileStats?.[index].wanted ? '是' : '否'}</TableCell>
+                  <TableCell className="text-center">
+                    {((file.bytesCompleted / file.length) * 100).toLocaleString()}%
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
     </div>
   );
 }

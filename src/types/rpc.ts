@@ -4,6 +4,20 @@
  */
 
 /**
+ * 请求方法名
+ */
+export type MethodName =
+  | 'torrent-set'
+  | 'torrent-get'
+  | 'torrent-start'
+  | 'torrent-stop'
+  | 'torrent-add'
+  | 'torrent-remove'
+  | 'session-set'
+  | 'session-get'
+  | 'session-stats';
+
+/**
  * 种子信息
  */
 export interface Torrent {

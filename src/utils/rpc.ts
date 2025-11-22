@@ -1,4 +1,4 @@
-import type { Torrent, Session, SessionStats, Response } from '@/types/rpc.ts';
+import type { Torrent, Session, SessionStats, Response, MethodName } from '@/types/rpc.ts';
 
 const BASE_URL = '/transmission/rpc';
 
@@ -10,7 +10,7 @@ interface Args {
 function createRPC() {
   let sessionId = '';
 
-  function send(method: string, args?: Args, tag?: string) {
+  function send(method: MethodName, args?: Args, tag?: string) {
     return fetch(BASE_URL, {
       method: 'POST',
       headers: {
@@ -25,7 +25,7 @@ function createRPC() {
     });
   }
 
-  return async function <T>(method: string, args?: Args, tag?: string): Promise<Response<T>> {
+  return async function <T>(method: MethodName, args?: Args, tag?: string): Promise<Response<T>> {
     let response = await send(method, args, tag);
 
     if (response.status === 409) {
@@ -66,6 +66,12 @@ async function setTorrent() {
   return response.arguments;
 }
 
+/**
+ * 添加种子
+ * @param path
+ * @param content
+ * @returns
+ */
 async function addTorrent(path: string, content: string) {
   const params = {
     'download-dir': path,
@@ -74,6 +80,20 @@ async function addTorrent(path: string, content: string) {
 
   const response = await client('torrent-add', params);
   return response.arguments;
+}
+
+/**
+ * 删除种子
+ * @param ids
+ * @param withData 是否同时删除数据，默认不删除
+ */
+async function deleteTorrent(ids: number | number[], withData: boolean = false) {
+  const params = {
+    ids: typeof ids === 'number' ? [ids] : ids,
+    'delete-local-data': withData
+  };
+
+  return client('torrent-remove', params);
 }
 
 type TorrentFields = keyof Torrent;
@@ -141,4 +161,13 @@ function getSessionStats() {
   return client<SessionStats>('session-stats');
 }
 
-export { startTorrent, stopTorrent, addTorrent, setTorrent, getTorrent, getSession, getSessionStats };
+export {
+  startTorrent,
+  stopTorrent,
+  addTorrent,
+  deleteTorrent,
+  setTorrent,
+  getTorrent,
+  getSession,
+  getSessionStats,
+};

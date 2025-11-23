@@ -39,6 +39,10 @@ function createRPC() {
 
 const client = createRPC();
 
+/**
+ * 开始下载种子
+ * @param ids
+ */
 async function startTorrent(ids: number | number[]) {
   const params = {
     ids: typeof ids === 'number' ? [ids] : ids,
@@ -49,7 +53,7 @@ async function startTorrent(ids: number | number[]) {
 }
 
 /**
- * 停止种子
+ * 停止下载种子
  * @param ids
  */
 async function stopTorrent(ids: number | number[]) {

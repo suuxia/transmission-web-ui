@@ -1,56 +1,75 @@
-import { useState, useEffect } from 'react';
-import { NavLink, Outlet } from 'react-router';
+import { NavLink, Outlet, useLocation } from 'react-router';
+import { Home, Settings } from 'lucide-react';
+import {
+  SidebarProvider,
+  SidebarTrigger,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import type { SessionStats } from '@/types/rpc.ts';
-import { getSessionStats } from '@/utils/rpc.ts';
 
 function App() {
-  const [sessionStats, setSessionStats] = useState<SessionStats>();
-
-  const itemClassName = 'text-sm px-2 py-1 rounded-md hover:bg-gray-200';
-
-  const setClassName = ({ isActive }: { isActive: boolean }) => {
-    return `${itemClassName}${isActive ? ' bg-gray-200' : ''}`;
-  };
-
-  const init = async () => {
-    const data = await getSessionStats();
-    setSessionStats(data.arguments);
-  };
-
-  useEffect(() => {
-    init();
-  }, []);
-
-  const doneNumber = () => {
-    const { torrentCount = 0, activeTorrentCount = 0 } = sessionStats || {};
-    return torrentCount - activeTorrentCount;
+  const routeLocation = useLocation();
+  const activePath = (path: string) => routeLocation.pathname === path;
+  const pathname = () => {
+    switch(routeLocation.pathname) {
+      case '/':
+        return '首页';
+      case '/settings':
+        return '设置';
+      default:
+        return '';
+    }
   };
 
   return (
-    <>
-      <nav className="fixed flex flex-col w-52 h-dvh p-2 gap-1 border-r-1 select-none bg-gray-50 border-slate-200">
-        <NavLink className={setClassName} to="/">
-          全部 ({sessionStats?.torrentCount})
-        </NavLink>
-        <NavLink className={setClassName} to="/downloading">
-          下载中 ({sessionStats?.activeTorrentCount})
-        </NavLink>
-        <NavLink className={setClassName} to="/done">
-          已完成 ({doneNumber()})
-        </NavLink>
-        <Separator />
-        <NavLink className={setClassName} to="/settings">
-          设置
-        </NavLink>
-        <NavLink className={setClassName} to="/about">
-          关于
-        </NavLink>
-      </nav>
-      <div className="pl-52 h-screen">
+    <SidebarProvider>
+      <Sidebar collapsible="icon">
+        <SidebarHeader />
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={activePath('/')} tooltip="首页">
+                  <NavLink to="/">
+                    <Home />
+                    <span>首页</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroup>
+        </SidebarContent>
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton asChild isActive={activePath('/settings')} tooltip="设置">
+                <NavLink to="/settings">
+                  <Settings />
+                  <span>设置</span>
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+      </Sidebar>
+      <main className="w-full h-dvh flex flex-col">
+        <header className="flex h-16 shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger />
+            <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
+            <div>{pathname()}</div>
+          </div>
+        </header>
         <Outlet />
-      </div>
-    </>
+      </main>
+    </SidebarProvider>
   );
 }
 

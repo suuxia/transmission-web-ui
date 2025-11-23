@@ -12,18 +12,8 @@ const router = createBrowserRouter([
     path: '/',
     Component: App,
     children: [
-      { 
-        index: true, 
-        Component: Torrents,
-      },
       {
-        path: 'downloading',
-        loader: () => 'downloading',
-        Component: Torrents,
-      },
-      {
-        path: 'done',
-        loader: () => 'done',
+        index: true,
         Component: Torrents,
       },
       {

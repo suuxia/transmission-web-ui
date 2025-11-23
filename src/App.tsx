@@ -60,7 +60,7 @@ function App() {
         </SidebarFooter>
       </Sidebar>
       <main className="w-full h-dvh flex flex-col">
-        <header className="flex h-16 shrink-0 items-center gap-2">
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger />
             <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />

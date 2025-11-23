@@ -154,7 +154,16 @@ export interface Session {
   'incomplete-dir-enabled': boolean;
   /** 未完成目录 */
   'incomplete-dir': string;
+  /**默认trackers */
   'default-trackers': string;
+  'dht-enabled': boolean;
+  'lpd-enabled': boolean;
+  /**随机端口号 */
+  'peer-port-random-on-start': boolean;
+  /**端口号 */
+  'peer-port': number;
+  'pex-enabled': boolean;
+  'rename-partial-files': boolean;
   'speed-limit-down-enabled': boolean;
   'speed-limit-down': number;
   'speed-limit-up-enabled': boolean;

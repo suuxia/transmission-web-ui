@@ -42,6 +42,10 @@ function Settings() {
           </div>
           <div>临时目录：{session?.['incomplete-dir']}</div>
           <div>
+            在未完成的文件名后加上<span className='inline-block px-2 bg-gray-100'>.part</span>后缀：
+            <Switch checked={session?.['rename-partial-files']} />
+          </div>
+          <div>
             时段限制：
             <Switch checked={session?.['alt-speed-enabled']} />
           </div>
@@ -50,6 +54,29 @@ function Settings() {
           <div>
             最大硬盘缓存（MB）：
             {session?.['cache-size-mb']}
+          </div>
+
+          <div>
+            端口号：
+            {session?.['peer-port']}
+          </div>
+
+          <div>
+            随机端口：
+            <Switch checked={session?.['peer-port-random-on-start']} />
+          </div>
+
+          <div>
+            分布式哈希表(DHT)：
+            <Switch checked={session?.['dht-enabled']} />
+          </div>
+          <div>
+            本地用户发现(LPD)：
+            <Switch checked={session?.['dht-enabled']} />
+          </div>
+          <div>
+            节点信息交换(PEX)：
+            <Switch checked={session?.['pex-enabled']} />
           </div>
         </TabsContent>
         <TabsContent value="trackers">

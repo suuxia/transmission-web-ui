@@ -1,5 +1,5 @@
 import { NavLink, Outlet, useLocation } from 'react-router';
-import { Home, Settings } from 'lucide-react';
+import { Home, ChartPie, Settings } from 'lucide-react';
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -21,6 +21,8 @@ function App() {
     switch(routeLocation.pathname) {
       case '/':
         return '首页';
+      case '/stats':
+        return '数据统计';
       case '/settings':
         return '设置';
       default:
@@ -40,6 +42,14 @@ function App() {
                   <NavLink to="/">
                     <Home />
                     <span>首页</span>
+                  </NavLink>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={activePath('/stats')} tooltip="数据统计">
+                  <NavLink to="/stats">
+                    <ChartPie />
+                    <span>数据统计</span>
                   </NavLink>
                 </SidebarMenuButton>
               </SidebarMenuItem>

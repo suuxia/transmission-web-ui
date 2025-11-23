@@ -5,6 +5,7 @@ import './index.css';
 import App from './App.tsx';
 import About from '@/views/About/About.tsx';
 import Torrents from '@/views/Torrents/Torrents.tsx';
+import Stats from './views/Stats/Stats.tsx';
 import Settings from '@/views/Settings/Settings.tsx';
 
 const router = createBrowserRouter([
@@ -15,6 +16,10 @@ const router = createBrowserRouter([
       {
         index: true,
         Component: Torrents,
+      },
+      {
+        path: 'stats',
+        Component: Stats,
       },
       {
         path: 'settings',

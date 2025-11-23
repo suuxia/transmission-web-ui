@@ -27,8 +27,13 @@ function TorrentComponent(props: TorrentProps) {
     <ContextMenu>
       <ContextMenuTrigger asChild>
         <div className="p-4 flex flex-col gap-2 select-none hover:bg-gray-200" data-id={torrent.id}>
-          <div className="truncate" title={torrent.name}>
-            {torrent.name}
+          <div className="flex justify-between gap-10">
+            <div className="truncate" title={torrent.name}>{torrent.name}</div>
+            <div className="grow-0 shrink-0 w-10">
+              {
+                torrent.status === 0 ? <Pause /> : <Play />
+              }
+            </div>
           </div>
           <div>
             <Progress value={torrent.percentDone * 100} />

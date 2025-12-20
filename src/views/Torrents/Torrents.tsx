@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet.tsx';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import VirtualizedList from '@/components/VirtualizedList/VirtualizedList.tsx';
@@ -7,6 +7,7 @@ import AddTorrent from './components/AddTorrent.tsx';
 import DeleteTorrent from './components/DeleteTorrent.tsx';
 import TorrentComponent from './components/Torrent.tsx';
 import TorrentDetail from './components/TorrentDetail.tsx';
+import { ActionType, type ActionTypeEnum } from '@/types/torrent';
 import { getTorrent, startTorrent, stopTorrent } from '@/utils/rpc.ts';
 
 /**
@@ -54,18 +55,22 @@ function Torrents() {
     setOpenSheet(true);
   };
 
-  const onUpdate = (id: number, type: string) => {
-    if (type === 'start') {
-      startTorrent(id);
-    } else if (type === 'stop') {
-      stopTorrent(id);
-    }
-  };
-
   const onDeleteConfirm = (id: number) => {
     setSelectedId(id);
     setOpenDeleteDialog(true);
   };
+
+  const onAction = useCallback((type: ActionTypeEnum, id: number) => {
+    if (type === ActionType.Detail) {
+      onDetail(id);
+    } else if (type === ActionType.Delete) {
+      onDeleteConfirm(id);
+    } else if (type === ActionType.Start) {
+      startTorrent(id);
+    } else if (type === ActionType.Stop) {
+      stopTorrent(id);
+    }
+  }, []);
 
   /**
    * 加载数据
@@ -98,13 +103,18 @@ function Torrents() {
         <AddTorrent />
       </div>
       <VirtualizedList listData={displayTorrents} itemHeight={100}>
-        {(torrent, index) => (
+        {(torrent) => (
           <TorrentComponent
-            key={index}
-            torrent={torrent}
-            onDetail={onDetail}
-            onUpdate={onUpdate}
-            onDelete={onDeleteConfirm}
+            key={torrent.id}
+            id={torrent.id}
+            downloadedEver={torrent.downloadedEver}
+            totalSize={torrent.totalSize}
+            percentDone={torrent.percentDone}
+            rateDownload={torrent.rateDownload}
+            rateUpload={torrent.rateUpload}
+            title={torrent.name}
+            status={torrent.status}
+            onAction={onAction}
           />
         )}
       </VirtualizedList>

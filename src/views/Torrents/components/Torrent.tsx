@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -7,58 +8,65 @@ import {
 } from '@/components/ui/context-menu.tsx';
 import { Progress } from '@/components/ui/progress.tsx';
 import { Info, Pause, Play, Trash2, Download, Upload } from 'lucide-react';
+import { ActionType, type ActionTypeEnum } from '@/types/torrent';
 import { formatSize, formatPercent } from '@/utils/format.ts';
-import type { Torrent } from '@/types/rpc.ts';
 
 interface TorrentProps {
-  torrent: Torrent;
-  onDetail?: (id: number) => void;
-  onUpdate?: (id: number, type: string) => void;
-  onDelete?: (id: number) => void;
+  id: number;
+  title: string;
+  downloadedEver: number;
+  totalSize: number;
+  percentDone: number;
+  rateDownload: number;
+  rateUpload: number;
+  status: number;
+  onAction?: (type: ActionTypeEnum, id: number) => void;
 }
 
-function TorrentComponent(props: TorrentProps) {
-  const { torrent, onDetail, onUpdate, onDelete } = props;
+const TorrentComponent = memo(function TorrentComponent(props: TorrentProps) {
+  const { id, title, downloadedEver, totalSize, percentDone, rateDownload, rateUpload, status, onAction } = props;
   const handleTorrentStatusUpdate = () => {
-    onUpdate?.(torrent.id, torrent.status == 0 ? 'start' : 'stop');
+    onAction?.(status == 0 ? ActionType.Start : ActionType.Stop, id);
   };
+
+  console.log('TorrentComponent', id);
 
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        <div className="p-4 flex flex-col gap-2 select-none hover:bg-gray-200" data-id={torrent.id}>
+        <div className="p-4 flex flex-col gap-2 select-none hover:bg-gray-200" data-id={id}>
           <div className="flex justify-between gap-10">
-            <div className="truncate" title={torrent.name}>{torrent.name}</div>
+            <div className="truncate" title={title}>{title}</div>
             <div className="grow-0 shrink-0 w-10">
               {
-                torrent.status === 0 ? <Pause /> : <Play />
+                status === 0 ? <Pause /> : <Play />
               }
             </div>
           </div>
           <div>
-            <Progress value={torrent.percentDone * 100} />
+            <Progress value={percentDone * 100} />
           </div>
           <div className="flex justify-between text-sm text-gray-400">
             <div>
               <span>
-                {formatSize(torrent.downloadedEver)}/{formatSize(torrent.totalSize)}
+                {formatSize(downloadedEver)}/{formatSize(totalSize)}
               </span>
-              <span>({formatPercent(torrent.percentDone)})</span>
+              <span>({formatPercent(percentDone)})</span>
             </div>
             <div className="flex items-center gap-1">
               {
-                torrent.rateDownload > 0
+                rateDownload > 0
                   ? <>
                     <span><Download size={16} /></span>
-                    <span>{formatSize(torrent.rateDownload)}/s</span>
+                    <span>{formatSize(rateDownload)}/s</span>
                   </>
                   : <></>
               }
               {
-                torrent.rateDownload > 0
+                rateUpload > 0
                   ? <>
                     <span><Upload size={16} /></span>
-                    <span>{formatSize(torrent.rateUpload)}/s</span>
+                    <span>{formatSize(rateUpload)}/s</span>
                   </>
                   : <></>
               }
@@ -68,7 +76,7 @@ function TorrentComponent(props: TorrentProps) {
       </ContextMenuTrigger>
       <ContextMenuContent>
         <ContextMenuItem onSelect={handleTorrentStatusUpdate}>
-          {torrent.status === 0 ? (
+          {status === 0 ? (
             <>
               <Play />
               开始
@@ -80,18 +88,18 @@ function TorrentComponent(props: TorrentProps) {
             </>
           )}
         </ContextMenuItem>
-        <ContextMenuItem onSelect={() => onDetail?.(torrent.id)}>
+        <ContextMenuItem onSelect={() => onAction?.(ActionType.Detail, id)}>
           <Info />
           种子详情
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem onClick={() => onDelete?.(torrent.id)} className="text-red-600">
+        <ContextMenuItem onClick={() => onAction?.(ActionType.Delete, id)} className="text-red-600">
           <Trash2 />
           删除
         </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+});
 
 export default TorrentComponent;

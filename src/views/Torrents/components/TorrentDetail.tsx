@@ -308,7 +308,7 @@ function TorrentTracker(props: { torrent: Torrent }) {
     <div className="flex flex-col gap-2">
       {torrent.trackerStats?.map((tracker) => {
         return (
-          <div key={tracker.id} className="border-1 p-2 flex flex-col gap-1">
+          <div key={tracker.id} className="border p-2 flex flex-col gap-1">
             <div>
               <div className="flex gap-2">
                 <span className="font-bold">{tracker.sitename}</span>
@@ -338,7 +338,7 @@ function TorrentInfo(props: { torrent: Torrent }) {
     <Table>
       <TableBody>
         <TableRow>
-          <TableCell className="w-[100px]">保存路径</TableCell>
+          <TableCell className="w-25">保存路径</TableCell>
           <TableCell>{torrent.downloadDir}</TableCell>
         </TableRow>
         <TableRow>

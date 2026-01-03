@@ -19,6 +19,8 @@ function Torrents() {
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<number>();
   const [filter, setFilter] = useState('all');
+
+  // 状态数量
   const statusCount = useMemo(() => {
     const counts = {
       all: torrents.length,
@@ -39,6 +41,8 @@ function Torrents() {
 
     return counts;
   }, [torrents]);
+
+  // 根据状态显示种子
   const displayTorrents = useMemo(() => {
     if (filter === 'downloading') {
       return torrents.filter((item) => item.status === 4);
@@ -120,7 +124,7 @@ function Torrents() {
       </VirtualizedList>
 
       <Sheet open={openSheet} onOpenChange={setOpenSheet}>
-        <SheetContent className="w-[400px] sm:w-[640px] sm:max-w-[700px] gap-0">
+        <SheetContent className="w-100 sm:w-160 sm:max-w-175 gap-0">
           <SheetHeader>
             <SheetTitle>种子详情</SheetTitle>
             <SheetDescription />

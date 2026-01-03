@@ -18,23 +18,39 @@ function Stats() {
       <div>
         总计：
         <div>
-          已上传：
-          {formatSize(stats?.["cumulative-stats"].uploadedBytes ?? 0)}
+          <span>已上传：</span>
+          {formatSize(stats?.['cumulative-stats'].uploadedBytes ?? 0)}
         </div>
         <div>
-          已下载：
-          {formatSize(stats?.["cumulative-stats"].downloadedBytes ?? 0)}
+          <span>已下载：</span>
+          {formatSize(stats?.['cumulative-stats'].downloadedBytes ?? 0)}
+        </div>
+        <div>
+          <span>会话次数：</span>
+          {stats?.['cumulative-stats'].sessionCount}
+        </div>
+        <div>
+          <span>活动时间：</span>
+          {stats?.['cumulative-stats'].secondsActive}
         </div>
       </div>
       <div>
         自启动以来：
         <div>
-          已上传：
-          {formatSize(stats?.["current-stats"].uploadedBytes ?? 0)}
+          <span>已上传：</span>
+          {formatSize(stats?.['current-stats'].uploadedBytes ?? 0)}
         </div>
         <div>
-          已下载：
-          {formatSize(stats?.["current-stats"].downloadedBytes ?? 0)}
+          <span>已下载：</span>
+          {formatSize(stats?.['current-stats'].downloadedBytes ?? 0)}
+        </div>
+        <div>
+          <span>会话次数：</span>
+          {stats?.['current-stats'].sessionCount}
+        </div>
+        <div>
+          <span>活动时间：</span>
+          {stats?.['current-stats'].secondsActive}
         </div>
       </div>
     </div>

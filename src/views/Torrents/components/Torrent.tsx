@@ -29,8 +29,6 @@ const TorrentComponent = memo(function TorrentComponent(props: TorrentProps) {
     onAction?.(status == 0 ? ActionType.Start : ActionType.Stop, id);
   };
 
-  console.log('TorrentComponent', id);
-
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>

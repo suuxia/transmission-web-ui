@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type DragEvent, type ChangeEvent } from 'react';
 import { Button } from '@/components/ui/button.tsx';
 import {
   Dialog,
@@ -31,12 +31,12 @@ function AddTorrent() {
     }
   };
 
-  const handleDrag = (e: React.DragEvent) => {
+  const handleDrag = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
   };
 
-  const handleDragIn = (e: React.DragEvent) => {
+  const handleDragIn = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.dataTransfer?.items && e.dataTransfer.items.length > 0) {
@@ -44,13 +44,13 @@ function AddTorrent() {
     }
   };
 
-  const handleDragOut = (e: React.DragEvent) => {
+  const handleDragOut = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -63,7 +63,7 @@ function AddTorrent() {
     }
   };
 
-  const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const files = Array.from(e.target.files).filter(file =>
         file.name.endsWith('.torrent') || file.type === 'application/x-bittorrent'
@@ -82,7 +82,6 @@ function AddTorrent() {
         const data = reader.result as string;
         const base64 = data.split(',')[1];
         addTorrent('/downloads', base64);
-        console.log(`Added torrent: ${file.name}`);
 
         // 如果是最后一个文件，关闭 dialog
         if (index === selectedFiles.length - 1) {
